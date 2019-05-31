@@ -1,5 +1,5 @@
 function throttle(fn, t) { let r = 0; return (...a) => { if (!r) { r = 1; fn(...a); require('Time').setTimeout(_ => r = 0, t); } } }
-function el(p, r) { return p.split('/').reduce((s, c, i) => (i || r) ? s.child(c) : s.find(c), r || require('Scene').root); }
+function find(p, r) { return p.split('/').reduce((s, c, i) => (i || r) ? s.child(c) : s.find(c), r || require('Scene').root); }
 function rand(min = 0, max = 1) { return min + Math.random() * (max - min); }
 function randInt(min = 0, max = 1) { return Math.floor(rand(min, max)); }
 function setVisibility(e, v) { toArray(e).forEach(c => c.hidden = !v); }
