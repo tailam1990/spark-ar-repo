@@ -35,6 +35,16 @@ function HorizontalSlider(cont, scale, count, spacing, options = {}) {
     container.x = initialIndex * -spacing;                  // Initialize position based on initial index
     indicator.x = index.mul(spacing);
 
+    // Tap to select. Button names are hard-coded
+    for (let i = 0; i < count; i++) {
+        TouchGestures.onTap(cont.child(`select${i}`)).subscribe(() => {
+            container.x = Animation.animate(driver, Animation.samplers.easeInOutQuad(container.x.pinLastValue(), -i * spacing));
+            driver.reset();
+            driver.start();
+        });
+    }
+
+    // Pan to select
     TouchGestures.onPan(container).subscribe(e => {
         container.x = Reactive.clamp(e.translation.x.div(scale).add(container.x.pinLastValue()), (count - 1) * -spacing, 0);
         // Snap to grid on release
