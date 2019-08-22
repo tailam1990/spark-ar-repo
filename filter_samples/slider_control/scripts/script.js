@@ -11,7 +11,7 @@ const rectangle = Scene.root.find('rectangle0');
 const container = Scene.root.find('container');
 
 const selectionCount = 9;   // Number of selections
-const spacing = .6;         // Spacing between button (rectangle position offset)
+const spacing = 60;         // Spacing between button (rectangle position offset)
 const initialIndex = 3;     // Initial selection index on startup, defaults to 0
 
 const selectedIndex = HorizontalSlider(container, screenScale, selectionCount, spacing, {
@@ -24,8 +24,6 @@ selectedIndex.monitor({ fireOnInitialValue: true }).subscribe(e => {
 });
 
 function HorizontalSlider(cont, scale, count, spacing, options = {}) {
-    spacing *= 100;
-
     const initialIndex = +options.initialIndex || 0;
     const container = cont.transform;
     const indicator = cont.child('indicator').transform;
