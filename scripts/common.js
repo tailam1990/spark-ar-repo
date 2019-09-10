@@ -1,3 +1,4 @@
+function alphaBlend(a) { return a.reduce((s, c) => require('Reactive').mix(c, s, s.w)); }
 function throttle(fn, t) { let r = 0; return (...a) => { if (!r) { r = 1; fn(...a); require('Time').setTimeout(_ => r = 0, t); } } }
 function find(p, r) { return p.split('/').reduce((s, c, i) => (i || r) ? s.child(c) : s.find(c), r || require('Scene').root); }
 function rand(min = 0, max = 1) { return min + Math.random() * (max - min); }
