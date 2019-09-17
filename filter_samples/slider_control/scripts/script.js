@@ -43,7 +43,7 @@ function HorizontalSlider(cont, scale, count, spacing, options = {}) {
     }
 
     // Pan to select
-    TouchGestures.onPan(container).subscribe(e => {
+    TouchGestures.onPan(cont).subscribe(e => {
         container.x = Reactive.clamp(e.translation.x.div(scale).add(container.x.pinLastValue()), (count - 1) * -spacing, 0);
         // Snap to grid on release
         e.state.eq('ENDED').onOn().subscribe(() => {
