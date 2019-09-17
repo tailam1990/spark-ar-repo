@@ -14,6 +14,7 @@ function between(n, min, max, excl) { return n >= min && n <= max && (!excl || n
 function mod2(a, b) { return require('Reactive').mod(a, b).add(b).mod(b); }
 function watchToString(g) { return Object.keys(g).reduce((s, c) => s.concat(c + ' ').concat(g[c] ? g[c].or ? g[c].ifThenElse('TRUE', 'FALSE') : g[c].mul ? g[c].format('{: 6f}') : g[c] : 'null/undefined').concat('\n'), require('Reactive').val('')); }
 function immediate(f) { require('Time').setTimeout(f, 0); }
+function iRange(end, start = 0) { let a = []; for (let i = 0; i < end - start; i++) a.push(i + start); return a };
 function lookAt(src, tgt) { let RT = require('Reactive'), s = src.transform, t = tgt.transform, v = t.position.sub(s.position); s.rotationX = RT.atan2(v.y, RT.vector(v.x, v.z, 0).magnitude()).neg(); s.rotationY = RT.atan2(v.x, v.z); }
 function ScalarProxy(c, s = []) { let k = ['x', 'y', 'z', 'scaleX', 'scaleY', 'scaleZ', 'rotationX', 'rotationY', 'rotationZ']; s.forEach((n, i) => Object.defineProperty(this, n, { get() { return c.transform[k[i]]; }, set(v) { c.transform[k[i]] = v; } })); }
 function screenToWorld(p) { let c = require('CameraInfo').previewSize; return RT.vector(p.x.sub(c.x.div(2)).div(c.x.div(2)).mul(c.x.div(c.y).mul(25)), p.y.sub(c.y.div(2)).div(c.y.div(2)).neg().mul(25), 0); }
