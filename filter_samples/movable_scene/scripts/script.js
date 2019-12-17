@@ -84,7 +84,13 @@ function MovableScene(obj, o = {}) {
             sub.unsubscribe();
         });
 
-        sub = RT.monitorMany(e.translation).subscribe(update);
+        sub = RT.monitorMany({
+            x: e.translation.x,
+            y: e.translation.y,
+            rx: DM.worldTransform.rotationX,
+            ry: DM.worldTransform.rotationY,
+            rz: DM.worldTransform.rotationZ,
+        }).subscribe(update);
     });
 
     this.velocity = RT.vector(s.vx, 0, s.vz);
