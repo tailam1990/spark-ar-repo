@@ -6,12 +6,14 @@ const Patches = require('Patches');
 const TIME_MS = 70000;
 const driver = Animation.timeDriver({ durationMilliseconds: TIME_MS });
 const time = Animation.animate(driver, Animation.samplers.linear(TIME_MS, 0));
-const endGame = Patches.getBooleanValue('endGame');
+const isPaused = Patches.getBooleanValue('isPaused');
 
-Scene.root.find('2dText0').text = formatTime(time);
+Scene.root.findFirst('txtTimer').then((textObj) => {
+    textObj.text = formatTime(time);
+});
 
 // Your pause/resume logic
-endGame.monitor().subscribe(e => {
+isPaused.monitor({ fireOnInitialValue: true }).subscribe(e => {
     if (e.newValue) {
         driver.stop();
     } else {
