@@ -1,4 +1,5 @@
 const CI = require('CameraInfo');
+const IS = require('Instruction');
 const RT = require('Reactive');
 const TM = require('Time');
 
@@ -10,6 +11,8 @@ export function randSign() { return Math.random() - .5 > 0 ? 1 : -1 };
 export function show(e) { toArray(e).forEach(c => c.hidden = false); }
 export function hide(e) { toArray(e).forEach(c => c.hidden = true); }
 export function setVisible(e, v) { toArray(e).forEach(c => c.hidden = !v); }
+export function minList(l) { return l.reduce((a, c) => RT.min(a, c)); }
+export function maxList(l) { return l.reduce((a, c) => RT.max(a, c)); }
 export function toArray(e) { return Array.isArray(e) ? e : [e]; }
 export function toRadian(d) { return typeof d !== 'number' ? d.mul(Math.PI / 180) : (Math.PI * d / 180); }
 export function toDegree(d) { return typeof d !== 'number' ? d.mul(180 / Math.PI) : (180 * d / Math.PI); }
@@ -21,3 +24,17 @@ export function iRange(end, start = 0) { let a = []; for (let i = 0; i < end - s
 export function lookAt(src, tgt) { let s = src.transform, t = tgt.transform, v = t.position.sub(s.position); s.rotationX = RT.atan2(v.y, RT.vector(v.x, v.z, 0).magnitude()).neg(); s.rotationY = RT.atan2(v.x, v.z); }
 export function resolveObject(o) { let v = Object.keys(o); return Promise.all(v.map(k => o[k])).then(r => r.reduce((a, c, i) => { a[v[i]] = c; return a; }, {})); }
 export function screenToWorld(p) { let c = CI.previewSize; return RT.vector(p.x.sub(c.x.div(2)).div(c.x.div(2)).mul(c.x.div(c.y).mul(25)), p.y.sub(c.y.div(2)).div(c.y.div(2)).neg().mul(25), 0); }
+
+/**
+ * Binds the first instruction from input list with which enabled equals true.
+ *
+ * @export
+ * @param {{ enabled: BoolSignal | boolean, token: StringSignal | string }[]} instructions
+ * @returns {{ enabled: BoolSignal, token: StringSignal }} Selected enabled instruction, enabled = false and token = '' if no instruction is enabled
+ */
+export function bindInstructions(instructions) {
+    const enabled = RT.orList(instructions.map((i) => i.enabled));
+    const token = instructions.reduce((p, c) => p.eq('').and(c.enabled).ifThenElse(c.token, p), RT.val(''));
+    IS.bind(enabled, token);
+    return { enabled, token };
+}

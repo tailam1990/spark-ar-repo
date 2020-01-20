@@ -11,23 +11,23 @@ export default function (objects, names = {}) {
     const cl = Array.isArray(objects) ? objects : [objects];                // A single or an array of scene objects with which its 9 transform will be used to store signals
     const nameKeys = Object.keys(names).slice(0, cl.length * k.length);     // Silently ignore excess names
     nameKeys.forEach((n, i) => {
-        let ci = Math.floor(i / 9);
-        let ki = i % 9;
+        let ci = cl[Math.floor(i / 9)];
+        let ki = k[i % 9];
         switch (getSignalType(names[n])) {
             case 'number':
-                cl[ci].transform[k[ki]] = names[n];
+                ci.transform[ki] = names[n];
                 Object.defineProperty(this, n, {
                     enumerable: true,
-                    get() { return cl[ci].transform[k[ki]]; },
-                    set(v) { cl[ci].transform[k[ki]] = v; }
+                    get() { return ci.transform[ki]; },
+                    set(v) { ci.transform[ki] = v; }
                 });
                 break;
             case 'boolean':
-                cl[ci].transform[k[ki]] = RT.or(false, names[n]).ifThenElse(1, 0);
+                ci.transform[ki] = RT.or(false, names[n]).ifThenElse(1, 0);
                 Object.defineProperty(this, n, {
                     enumerable: true,
-                    get() { return cl[ci].transform[k[ki]].eq(1); },
-                    set(v) { cl[ci].transform[k[ki]] = RT.or(false, v).ifThenElse(1, 0); }
+                    get() { return ci.transform[ki].eq(1); },
+                    set(v) { ci.transform[ki] = RT.or(false, v).ifThenElse(1, 0); }
                 });
                 break;
         }
