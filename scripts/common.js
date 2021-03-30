@@ -2,6 +2,7 @@ const CI = require('CameraInfo');
 const IS = require('Instruction');
 const RT = require('Reactive');
 const TM = require('Time');
+const DS = require('Diagnostics');
 
 export function alphaBlend(a) { return a.reduce((s, c) => RT.mix(c, s, s.w)); }
 export function throttle(fn, t) { let r = 0; return (...a) => { if (!r) { r = 1; fn(...a); TM.setTimeout(_ => r = 0, t); } } }
@@ -17,7 +18,8 @@ export function toArray(e) { return Array.isArray(e) ? e : [e]; }
 export function toRadian(d) { return typeof d !== 'number' ? d.mul(Math.PI / 180) : (Math.PI * d / 180); }
 export function toDegree(d) { return typeof d !== 'number' ? d.mul(180 / Math.PI) : (180 * d / Math.PI); }
 export function between(n, min, max, excl = false) { return RT.or(false, excl).ifThenElse(n.gt(min).and(n.lt(max)), n.ge(min).and(n.le(max))); }
-export function mod2(a, b) { return RT.mod(a, b).add(b).mod(b); }
+export function mod2(a, b) { return typeof a !== 'number' ? RT.mod(a, b).add(b).mod(b) : ((a % b + b) % b); }
+export function watch(o) { Object.keys(o).forEach((k) => DS.watch(k, o[k])); }
 export function watchToString(g) { return Object.keys(g).reduce((s, c) => s.concat(c + ' ').concat(g[c] ? g[c].or ? g[c].ifThenElse('TRUE', 'FALSE') : g[c].trigger ? g[c].format('{: 6f}') : g[c] : 'null/undefined').concat('\n'), RT.val('')); }
 export function immediate(f) { TM.setTimeout(f, 0); }
 export function iRange(end, start = 0) { let a = []; for (let i = 0; i < end - start; i++) a.push(i + start); return a };
