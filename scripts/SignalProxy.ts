@@ -4,34 +4,40 @@ import SC from 'Scene';
 const ts = ['x', 'y', 'z', 'scaleX', 'scaleY', 'scaleZ', 'rotationX', 'rotationY', 'rotationZ'];
 let count = 0;
 
-type ProxyParameter = {
-    [name: string]: ISignal;
-}
-
 type SignalParameter = {
     [name: string]: boolean | BoolSignal | number | ScalarSignal;
 }
 
+type ProxyParameter<T> = {
+    [Property in keyof T]: T[Property] extends boolean ? BoolSignal : T[Property] extends number ? ScalarSignal : T[Property] extends BoolSignal ? BoolSignal : T[Property] extends ScalarSignal ? ScalarSignal : never;
+}
+
 /**
- * Only number and boolean and their corresponding signal types are supported
+ * Only number and boolean and their corresponding signal types are supported.
  * 
  * Usage:
  * 
  * import createSignals from './SignalProxy';
  * 
- * type SignalProxy = { isPaused: BoolSignal; speed: ScalarSignal; }
+ * const Signals = await createSignals({ isPaused: false, index: 0, speed: Reactive.val(1.234) });
  * 
- * const Signals = await createSignals<SignalProxy>({ isPaused: false, speed: Reactive.val(1.234) });
+ * Signals.index = 3;
+ * 
+ * Signals.index.monitor().subscribe((e) => Diagnostics.log(e.newValue));
+ * 
+ * Signals.isPaused.onOn().subscribe(() => Diagnostics.log("On"));
+ * 
  * @param names 
  * @returns Object with keys and signals created from names argument
  */
-export default async function createSignals<T extends ProxyParameter>(names: SignalParameter = {}): Promise<T> {
+export default async function createSignals<T extends SignalParameter>(names: T): Promise<ProxyParameter<T>> {
     if (SC.create == null) {
         throw Error('Failed to create signal proxy: Enable "Scripting Dynamic Instantiation" in project properties -> capabilities.');
     }
 
-    const store = {} as T;
-    const keys = Object.keys(names);
+    const store = {} as ProxyParameter<T>;
+    const params = names || {};
+    const keys = Object.keys(params);
     const fd = await SC.root.findFirst('Focal Distance');
     const ct = await SC.create('SceneObject', { name: `__sp`, hidden: true });
     const cl = await Promise.all(
@@ -45,10 +51,10 @@ export default async function createSignals<T extends ProxyParameter>(names: Sig
     keys.forEach((n, i) => {
         const ci = cl[Math.floor(i / 9)];
         const ki = ts[i % 9];
-        const ty = getSignalType(names[n]);
+        const ty = getSignalType(params[n]);
         switch (ty) {
             case 'number':
-                ci.transform[ki] = names[n];
+                ci.transform[ki] = params[n];
                 Object.defineProperty(store, n, {
                     enumerable: true,
                     get() { return ci.transform[ki]; },
@@ -56,7 +62,7 @@ export default async function createSignals<T extends ProxyParameter>(names: Sig
                 });
                 break;
             case 'boolean':
-                ci.transform[ki] = RT.or(false, names[n] as BoolSignal).ifThenElse(1, 0);
+                ci.transform[ki] = RT.or(false, params[n] as BoolSignal).ifThenElse(1, 0);
                 Object.defineProperty(store, n, {
                     enumerable: true,
                     get() { return ci.transform[ki].eq(1); },
